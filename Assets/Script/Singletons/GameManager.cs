@@ -1,16 +1,46 @@
+using TMPro;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public static GameManager Instance { get; private set; }
+    public TMP_Text scoreLabel;
+    public int Scores = 0;
+
+    private void Awake()
     {
-        
+        Instance = this;
     }
 
-    // Update is called once per frame
+    public void SetScores(int value)
+    {
+        Scores += value;
+        Debug.Log("Scores : " + Scores);
+        scoreLabel.text = "Scores : " + Scores;
+    }
+
     void Update()
     {
-        
+        if (Input.GetMouseButtonDown(0))
+        {
+
+            Ray raycast = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hitpoint;
+            if (Physics.Raycast(raycast, out hitpoint))
+            {
+                GameObject RCollider = hitpoint.collider.gameObject;
+
+                Debug.Log("Raycast hit: " + RCollider.name);
+
+                EnemyBase enemy = RCollider.GetComponent<EnemyBase>();
+                if (enemy != null)
+                {
+                    enemy.OnClicked();
+                    
+                }
+            }
+
+
+        }
     }
 }

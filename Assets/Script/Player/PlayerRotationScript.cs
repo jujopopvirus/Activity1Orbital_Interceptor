@@ -3,8 +3,9 @@ using static UnityEngine.GraphicsBuffer;
 
 public class PlayerRotationScript : MonoBehaviour
 {
-    float detectionRadius = 8f;
+    public float detectionRadius = 8f;
     public float rotation_speed = 6.5f;
+    public float threshold = 0.98f;
     public LayerMask enemyLayer;
 
     // Update is called once per frame
@@ -14,11 +15,29 @@ public class PlayerRotationScript : MonoBehaviour
         if (target != null)
         {
             Vector3 dirtoTarget = (target.position - transform.position).normalized;
+            dirtoTarget.y = 0f;
+            dirtoTarget.Normalize();
+
             Quaternion lookRot = Quaternion.LookRotation(dirtoTarget);
-            Vector3 rotation = Quaternion.Lerp(transform.rotation, lookRot, Time.deltaTime * rotation_speed).eulerAngles;
-            transform.rotation = Quaternion.Euler(0f, rotation.y, 0f);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * rotation_speed);
+
+            float al = Vector3.Dot(transform.forward, dirtoTarget);
+
+            if (al > threshold)
+            {
+                Debug.Log("Target Locked! : " + al);
+            }
+
+
         }
     
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+
     }
 
     public Transform OnDetectEnemies()
@@ -37,11 +56,17 @@ public class PlayerRotationScript : MonoBehaviour
             Vector3 dirToCol = enemyCol.transform.position - currPos;
             float enemyPos = dirToCol.sqrMagnitude;
 
+            
+
             if (enemyPos > detectionRadius)
             {
                 closePos = enemyPos;
                 current_enemy = enemyCol.transform;
+                Debug.DrawLine(transform.position, dirToCol, Color.green);
                 Debug.Log("Enemy Detected");
+
+                EnemyBase en = enemyCol.GetComponent<EnemyBase>();
+                en.isInside = true;
             }
         }
 
