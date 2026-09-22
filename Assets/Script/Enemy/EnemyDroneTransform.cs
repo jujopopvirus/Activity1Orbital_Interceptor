@@ -7,7 +7,6 @@ public class EnemyDroneTransform : MonoBehaviour
     public AnimationCurve moveCurve;
 
     public float LerpTime = 5.0f;
-    private float elapsedTime;
     void Start()
     {
         
@@ -15,14 +14,6 @@ public class EnemyDroneTransform : MonoBehaviour
 
     void Update()
     {
-        elapsedTime += Time.deltaTime;
-
-        float toa = LerpTime * 100;
-
-        float t = elapsedTime / toa;
-
-        float curveM = moveCurve.Evaluate(t);
-
-        transform.position = Vector3.Lerp(startingPoint, endPoint, Mathf.PingPong(Time.time, curveM));
+        transform.position = Vector3.Lerp(startingPoint, endPoint, Mathf.PingPong(Time.time, LerpTime));
     }
 }
